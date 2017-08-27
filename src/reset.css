@@ -1,7 +1,16 @@
+
 div {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   min-width: 0;
   align-items: stretch;
+}
+
+.monaco-aria-container, .react-monaco-editor-container, .react-monaco-editor-container div {
+  display: unset;
+  flex-direction: unset;
+  flex-shrink: unset;
+  min-width: unset;
+  align-items: unset;
 }

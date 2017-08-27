@@ -6,7 +6,15 @@ import { accent, gray } from '../utils/colors'
 import {headerFontFamily} from '../utils/typography'
 import debounce from '../utils/debounce'
 import { compressToEncodedURIComponent as compress, decompressFromEncodedURIComponent as decompress } from 'lz-string'
+import MonacoEditor from 'react-monaco-editor';
 
+const isSafari = (
+  typeof navigator !== 'undefined' && /iP(ad|hone|od).+Version\/[\d\.]+.*Safari/i.test(navigator.userAgent)
+) || (
+  typeof safari !== 'undefined'
+);
+
+/*
 let CodeMirror
 if (typeof navigator !== 'undefined') {
   CodeMirror = require('../components/CodeMirror')
@@ -21,6 +29,7 @@ if (typeof navigator !== 'undefined') {
     </div>
   )
 }
+*/
 const reasonQueryParamPrefix = "?reason="
 const ocamlQueryParamPrefix = "?ocaml="
 
@@ -37,6 +46,14 @@ const decodeSnippetFromURL = () => {
     return ['let x = 10;\nJs.log x;', true]
   }
 }
+const Editor = ({language, value, onChange, options}) => (
+  <MonacoEditor
+    language={language}
+    value={value}
+    onChange={onChange}
+    options={options}
+  />
+);
 
 const encodeSnippetToURL = debounce((input, queryParamPrefix) => {
   const encodedSnippet = compress(input);
@@ -60,12 +77,6 @@ const waitUntilScriptsLoaded = done => {
     }
   }, 10)
 }
-
-const isSafari = (
-  typeof navigator !== 'undefined' && /iP(ad|hone|od).+Version\/[\d\.]+.*Safari/i.test(navigator.userAgent)
-) || (
-  typeof safari !== 'undefined'
-);
 
 export default class Try extends Component {
   state = {
@@ -257,10 +268,6 @@ export default class Try extends Component {
 
   render() {
     const { reason, ocaml, js, reasonSyntaxError, compileError, ocamlSyntaxError, jsError } = this.state
-    const codemirrorStyles = [
-      styles.codemirror,
-      isSafari && styles.codemirrorSafari,
-    ]
     return (
       <div css={styles.container}>
         <Helmet>
@@ -277,13 +284,9 @@ export default class Try extends Component {
           <div css={styles.column}>
             <div css={styles.row}>
               <div css={styles.label}>Reason</div>
-              <CodeMirror
-                css={codemirrorStyles}
+              <Editor
                 value={reason}
-                options={{
-                  mode: 'rust',
-                  lineNumbers: true,
-                }}
+                language="rust"
                 onChange={this.updateReason}
               />
               {reasonSyntaxError &&
@@ -296,13 +299,9 @@ export default class Try extends Component {
             <div style={{ flexBasis: 20 }} />
             <div css={styles.row}>
               <div css={styles.label}>OCaml</div>
-              <CodeMirror
-                css={codemirrorStyles}
+              <Editor
                 value={ocaml}
-                options={{
-                  mode: 'mllike',
-                  lineNumbers: true,
-                }}
+                language="mllike"
                 onChange={this.updateOCaml}
               />
               {ocamlSyntaxError &&
@@ -325,13 +324,11 @@ export default class Try extends Component {
           <div css={styles.column}>
             <div css={styles.row}>
               <div css={styles.label}>JavaScript</div>
-              <CodeMirror
-                css={codemirrorStyles}
+              <Editor
                 value={js}
+                language="javascript"
                 options={{
-                  mode: 'javascript',
-                  lineNumbers: true,
-                  readOnly: 'nocursor',
+                  readOnly: true
                 }}
               />
               {jsError &&
